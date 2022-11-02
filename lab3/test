@@ -1,0 +1,225 @@
+max
+maxShapes
+maxShapes 0.005
+maxShapes f
+maxShapes 1f
+maxShapes f1
+maxShapes 0 0
+maxShapes 0 0f
+maxShapes 0 f0
+maxShapes 0 -01
+maxShapes 0 0.005f
+maxShapes 0
+create first_circle circle 2 2 2 2
+create second_circle circle 2 2 2 2
+draw all
+delete first_circle
+delete second_circle
+delete all
+draw all
+maxShapes 1
+create
+create all
+create first_circle
+create first_circle all
+create first_circle circle2000
+create first_circle circle 
+create first_circle circle  0.005
+create first_circle circle  f
+create first_circle circle  1f
+create first_circle circle  f1
+create first_circle circle -1
+
+create first_circle circle -1 0.005
+create first_circle circle -1 f
+create first_circle circle -1 1f
+create first_circle circle -1 f1
+create first_circle circle -1 -1
+
+create first_circle circle f1 0.005
+create first_circle circle f1 f
+create first_circle circle f1 1f
+create first_circle circle f1 f1
+create first_circle circle f1 -1
+
+create first_circle circle 1f 0.005
+create first_circle circle 1f f
+create first_circle circle 1f 1f
+create first_circle circle 1f f1
+create first_circle circle 1f -1
+
+create first_circle circle 0.005 0.005
+create first_circle circle 0.005 f
+create first_circle circle 0.005 1f
+create first_circle circle 0.005 f1
+create first_circle circle 0.005 -1
+
+create first_circle circle -0.005 0.005
+create first_circle circle -0.005 f
+create first_circle circle -0.005 1f
+create first_circle circle -0.005 f1
+create first_circle circle -0.005 -1
+
+create first_circle circle 0 0 -1 0.005
+create first_circle circle 0 0 -1 f
+create first_circle circle 0 0 -1 1f
+create first_circle circle 0 0 -1 f1
+create first_circle circle 0 0 -1 -1
+
+create first_circle circle 0 0 f1 0.005
+create first_circle circle 0 0 f1 f
+create first_circle circle 0 0 f1 1f
+create first_circle circle 0 0 f1 f1
+create first_circle circle 0 0 f1 -1
+
+create first_circle circle 0 0 1f 0.005
+create first_circle circle 0 0 1f f
+create first_circle circle 0 0 1f 1f
+create first_circle circle 0 0 1f f1
+create first_circle circle 0 0 1f -1
+
+create first_circle circle 0 0 0.005 0.005
+create first_circle circle 0 0 0.005 f
+create first_circle circle 0 0 0.005 1f
+create first_circle circle 0 0 0.005 f1
+create first_circle circle 0 0 0.005 -1
+
+create first_circle circle 0 0 -0.005 0.005
+create first_circle circle 0 0 -0.005 f
+create first_circle circle 0 0 -0.005 1f
+create first_circle circle 0 0 -0.005 f1
+create first_circle circle 0 0 -0.005 -1
+
+
+create first_circle circle
+create first_circle circle 0
+create first_circle circle 0 0
+create first_circle circle 0 0 0
+
+create first_circle circle 0 0 1 2
+create first_circle circle 0 0 2 1
+create first_circle circle 0 0 0 0
+
+create first_circle circle 0 0 0 0
+create second_circle circle 0 0 0 0
+create third_circle circle 0 0 0 0
+
+
+
+-------------------------------------------------------
+
+
+
+draw
+draw first_circle
+draw second_circle
+draw third_circle
+draw all
+
+draw first_circle 0
+draw first_circle 0f
+draw first_circle f0
+draw first_circle 0.005
+draw first_circle -0.005
+
+delete
+delete first_circle
+delete second_circle
+delete third_circle
+delete first_circle 0
+delete first_circle 0f
+delete first_circle f0
+delete first_circle 0.005
+delete all
+delete first_circle -0.005
+
+draw first_circle
+draw second_circle
+draw third_circle
+draw all
+
+create first_circle circle 0 0 0 0
+create second_circle circle 0 0 0 0
+create third_circle circle 0 0 0 0
+
+maxShapes 2048
+create first_circle circle 0 0 0 0
+create second_circle circle 0 0 0 0
+create third_circle circle 0 0 0 0
+
+move
+move first_circle
+move second_circle
+move third_circle
+move second_circle  0.005
+move second_circle  f
+move second_circle  1f
+move second_circle  f1
+move second_circle -1
+
+move second_circle -1 0.005
+move second_circle -1 f
+move second_circle -1 1f
+move second_circle -1 f1
+move second_circle -1 -1
+
+move second_circle f1 0.005
+move second_circle f1 f
+move second_circle f1 1f
+move second_circle f1 f1
+move second_circle f1 -1
+
+move second_circle 1f 0.005
+move second_circle 1f f
+move second_circle 1f 1f
+move second_circle 1f f1
+move second_circle 1f -1
+
+move second_circle 0.005 0.005
+move second_circle 0.005 f
+move second_circle 0.005 1f
+move second_circle 0.005 f1
+move second_circle 0.005 -1
+
+move second_circle -0.005 0.005
+move second_circle -0.005 f
+move second_circle -0.005 1f
+move second_circle -0.005 f1
+move second_circle -0.005 -1
+
+move first_circle 100 100
+move second_circle 100 100
+move third_circle 100 100
+
+rotate
+rotate first_circle
+rotate second_circle
+rotate third_circle
+rotate second_circle  0.005
+rotate second_circle  f
+rotate second_circle  1f
+rotate second_circle  f1
+rotate second_circle -1
+rotate first_circle 720
+rotate second_circle 1024
+rotate third_circle 2048
+
+rotate first_circle 0
+rotate second_circle 180
+rotate third_circle 360
+
+delete first_circle
+draw first_circle
+draw all
+
+
+delete thrid_circle
+draw thrid_circle
+draw all
+
+
+delete all
+draw first_circle
+draw second_circle
+draw third_circle
+draw all
