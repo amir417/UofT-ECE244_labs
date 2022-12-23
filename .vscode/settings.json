@@ -3,6 +3,11 @@
         "iostream": "cpp",
         "iosfwd": "cpp",
         "ostream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "new": "cpp",
+        "*.tcc": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp",
+        "random": "cpp"
     }
 }

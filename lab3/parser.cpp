@@ -1,4 +1,5 @@
 // ~ece244i/public/exercise 3 parser.exe
+//  g++ parser.cpp Shape.cpp -o parser.e
 //  parser.cpp
 //  lab3
 //
@@ -21,23 +22,27 @@ using namespace std;
 #include "Shape.h"
 
 // This is the shape array, to be dynamically allocated
-Shape** shapesArray;
+Shape** shapesArray = NULL;
 
 // The number of shapes in the database, to be incremented 
 int shapeCount = 0;
-int counter=0;
-string currentCommand;
-string Gtype, Gname;
-int Gval;
-int GxSize,GySize,GxLoc,GyLoc,Grotate;
+
 // The value of the argument to the maxShapes command
 int max_shapes;
+string nameTop;
+string typeTop;
+string commandTop;
+int xlocTop, ylocTop, xszTop, yszTop, angleTop;
 
-// ECE244 Student: you may want to add the prototype of
-// helper functions you write here
+bool foe (stringstream &sin){
+    return sin.eof();
+}
 
-bool NameTaken(string name){
-    for (int i = 0; i < max_shapes; i++)
+
+bool shapeExist (const string& name){
+// This function checks if an object with such name exists in the database and if yes, it would 
+// pass on the pointer to currentShape.
+    for (int i = 0; i < shapeCount; i++)
     {
         if (shapesArray[i] != NULL && name == shapesArray[i]->getName())
         {
@@ -46,445 +51,443 @@ bool NameTaken(string name){
     }
     return false;
 }
-
-bool rotate(stringstream& line){
-        if (line.eof()) {
-        cout << "Error: too few arguments" << endl;
-        return true;
-    }
-    int z;
-    line >> z;
-    counter++;
-    if (line.fail() || (line.peek() != EOF && line.peek() != 32)){
-        cout << "Error: invalid argument" << endl;
-        return true;
-    }
-    else if (z > 360 || z < 0 ){
-        cout << "Error: invalid value" << endl;
-        return true;
-    }
-        if(!line.eof() && currentCommand == "rotate"){
-        cout << "Error: too many arguments" <<endl;
-        return true;
-    }
-        return false;
-
-}
-
-
-bool CheckName(stringstream& line){
-    if (line.eof()){
-      cout << "Error: too few arguments" << endl;
-        return true;
-    }
-    counter ++;
-    string name;
-    line >> name;
-
-
-    if (line.fail()||(line.peek() != EOF && line.peek() != 32)){
-    cout << "Error: invalid arguments" << endl;
-    return true;
-    }
-
-    int count = 0;
-
-    for (int i = 0; i < NUM_KEYWORDS; i++){
-        if (name == keyWordsList[i])
-            count++;
-    }
-     for (int i = 0; i < NUM_TYPES; i++){
-        if (name == shapeTypesList[i]){
-            count++;
-        }
-     }
-
-    if (count !=0 && ((currentCommand != "draw" ||  currentCommand != "delete") && name != "all")){
-     cout << "Error: invalid shape name" << endl;
-     return true;
-    }
-    if(NameTaken(name) == false && (currentCommand == "draw" && currentCommand == "move"  && currentCommand == "rotate")&& name!="all") {
-         cout << "Error: shape " << name << " not found" << endl;
-         return true;
-        }
-
-    for(int i=0;i<max_shapes;i++){
-        if(NameTaken(name) && currentCommand == "create"){
-          cout << "Error: shape "<< name << " exists" << endl;
-          return true;
-        }
-    }
-
-        if(!line.eof() && currentCommand == "draw"){
-        cout << "Error: too many arguments" <<endl;
-        return true;
-    }
-
-   Gname = name; 
-    return false;
-
-}
-
-int getShapeIndex (string name){
-        for (int i = 0; i < max_shapes; i++){
-        if (name == shapesArray[i]->getName()){
+int intshapeExist (string& name){
+// This function checks if an object with such name exists in the database and if yes, it would 
+// pass on the pointer to currentShape. 
+    for (int i = 0; i < shapeCount; i++){
+        if (shapesArray[i] != NULL && shapesArray[i]->getName() == name)
+        {
             return i;
         }
-}
-return -1;
+    }
+    return 0;
 }
 
-bool CheckType(stringstream& line){
-    if (line.eof()){
-      cout << "Error: too few arguments" << endl;
+
+void maxShapes (const int& value){
+    if (shapesArray != NULL){
+        for (int i = 0; i < shapeCount; i++){
+            if (shapesArray[i] != NULL){
+               delete (shapesArray[i]);
+               shapesArray[i] = NULL; 
+            }
+        }
+        delete [] shapesArray;
+        shapesArray = NULL;
+        shapeCount = 0;
+    }
+    max_shapes = value;
+    shapesArray = new Shape* [max_shapes];
+    for (int i = 0; i < max_shapes; i++){
+        shapesArray[i] = NULL;
+    }
+    
+    cout << "New database: max shapes is " << max_shapes << endl;
+    return;
+}
+
+void create (string name, string type, int x_loc, int x_size, int y_loc , int y_size, stringstream &sin){
+    while(sin.peek() == 32){
+        sin.ignore(1);
+    }
+    if (shapeExist(name)){
+        cout << "Error: shape " << name << " exists"<< endl;
+        return;
+    }
+    else if (!foe(sin)){
+        cout << "Error: too many arguments" << endl;
+    }
+    else if (shapeCount == max_shapes){
+        cout << "Error: shape array is full" << endl;
+        return;
+    }
+    else{
+        shapesArray [shapeCount] =  new Shape (name, type, x_loc, x_size, y_loc, y_size);
+        shapeCount++;
+        cout << "Created " << name << ": " << type << " " << x_loc << " " << y_loc << " " << x_size << " " << y_size << endl;
+    }
+    return;
+}
+
+void move ( string name, int x_loc, int y_loc, stringstream &sin){
+    while(sin.peek() == 32){
+        sin.ignore(1);
+    }
+        int i;
+        if (!shapeExist (name)){
+            cout << "Error: shape " << name << " not found" << endl;
+            return;
+        }
+        else if (!foe(sin)){
+        cout << "Error: too many arguments" << endl;
+        }
+        else if (shapeExist (name)){
+            i = intshapeExist (name);
+            shapesArray[i]->setXlocation(x_loc);
+            shapesArray[i]->setYlocation(y_loc);
+            cout << "Moved " << name << " to " << shapesArray[i]->getXlocation() << " " << shapesArray[i]->getYlocation() << endl;
+        }
+    return;
+}
+
+void rotate ( string name, int angle, stringstream& sin){
+    while(sin.peek() == 32){
+        sin.ignore(1);
+    }
+        int i;
+        if (!shapeExist (name)){
+            cout << "Error: shape " << name << " not found" << endl;
+            return;
+        }
+        else if (!foe(sin)){
+            cout << "Error: too many arguments" << endl;
+        }
+        else if (shapeExist (name)){
+            i = intshapeExist (name);
+            shapesArray[i]->setRotate(angle);
+            cout << "Rotated " << name << " by " << angle << " degrees" << endl;
+        }  
+    return;
+}
+
+void draw (string name, stringstream& sin){
+    while(sin.peek() == 32){
+        sin.ignore(1);
+    }
+    if (!shapeExist (name) && foe(sin)){
+        if (name == "all"){
+        cout << "Drew all shapes" << endl;
+        for (int i = 0; i < shapeCount; i++){
+            if (shapesArray[i] != NULL){
+                shapesArray[i]->draw();
+            } 
+        }
+        return;
+        }
+        else {
+        cout << "Error: shape " << name << " not found" << endl;
+            return;    
+        }    
+    }
+    else if (!shapeExist (name) && name != "all") {
+        cout << "Error: shape " << name << " not found" << endl;
+            return;    
+        }
+    else if ( !foe(sin) ){
+        cout << "Error: too many arguments" << endl;
+    }
+    else {
+        for (int i = 0; i < shapeCount; i++){
+            if (shapesArray[i] != NULL && shapesArray[i]->getName() == name)
+            {
+                cout <<  "Drew " ;
+                shapesArray[i]->draw();
+                return;
+            }
+        }    
+    }
+    return;
+}
+
+void Delete (string name, stringstream& sin){
+    while(sin.peek() == 32){
+        sin.ignore(1);
+    }
+    if (!shapeExist (name) && foe(sin)){
+        if (name == "all"){
+        for (int i = 0; i < shapeCount; i++){
+            if (shapesArray[i] != NULL){
+                delete (shapesArray[i]);
+                shapesArray[i] = NULL;
+            }
+            
+            }
+        cout << "Deleted: all shapes" << endl;
+        return;
+        }
+        else {
+        cout << "Error: shape " << name << " not found" << endl;
+            return;    
+        }    
+    }
+    else if (!shapeExist (name) && name != "all") {
+        cout << "Error: shape " << name << " not found" << endl;
+            return;    
+        }
+    else if ( !foe(sin)){
+        cout << "Error: too many arguments" << endl;
+    }
+    else {
+        for (int i = 0; i < shapeCount; i++){
+            if (shapesArray[i] != NULL && shapesArray[i]->getName() == name){
+                delete shapesArray[i];
+                shapesArray[i] = NULL;
+            }
+        }  
+        cout << "Deleted shape " << name << endl;  
+    }
+    return;
+}
+
+bool nameCheck (stringstream  &sin){
+    if (sin.eof()) {
+        cout << "Error: too few arguments" << endl;
+        return false;
+    }
+    string name;
+    sin >> name;
+    bool flag = false;
+
+   if (sin.fail()){
+        cout << "Error: invalid argument" << endl;
+        return false;
+    }
+    for (int i = 0; i < NUM_KEYWORDS; i++){
+        if ((commandTop != "draw" && commandTop != "delete") && name == keyWordsList[i])
+            flag = true;
+    }
+    for (int i = 0; i < NUM_TYPES; i++){
+        if (name == shapeTypesList[i])
+            flag = true;
+    }
+    if (flag == true) {
+        cout << "Error: invalid shape name" << endl;
+        return false;
+    }
+    else if (shapeExist(name) && (commandTop == "create")){
+        cout << "Error: shape "<< name << " exists" << endl;
+        return false;
+    }
+    else if (!shapeExist(name) && (commandTop != "create") && name != "all"){
+        cout << "Error: shape " << name << " not found" << endl;
+        return false;
+    }
+    else {
+        nameTop = name;
         return true;
     }
-    counter++;
-    string type;
-    line >> type;
 
-    if (line.fail()||(line.peek() != EOF && line.peek() != 32)){
-    cout << "Error: invalid arguments" << endl;
-    return true;
+}
+
+bool typeCheck(stringstream  &sin){
+    if (sin.eof()) {
+        cout << "Error: too few arguments" << endl;
+        return false;
     }
+    string type;
+    sin >> type;
+    bool flag = false;
 
-    int count = 0;
-        for (int i = 0; i < NUM_TYPES; i++){
+    if (sin.fail()){
+        cout << "Error: invalid argument" << endl;
+        return false;
+    }
+    for (int i = 0; i <NUM_TYPES; i++){
         if (type == shapeTypesList[i]){
-            count++;
+            flag = true;
         }
     }
-
-    if (count==0){
-     cout << "Error: invalid shape type" << endl;
-     return true;
+    if (flag == false){
+        cout << "Error: invalid shape type" << endl;
+        return false;
     }
-
-   Gtype = type;
-    return false;
+    else{
+        typeTop = type;
+        return true;
+    }
 }
 
-bool CheckXLoc(stringstream& line){
-    if (line.eof()) {
+bool xlocCheck(stringstream  &sin){
+    if (sin.eof()) {
         cout << "Error: too few arguments" << endl;
-        return true;
+        return false;
     }
     int x;
-    line >> x;
-    counter++;
-    if (line.fail()|| (line.peek() != EOF && line.peek() != 32)){
+    sin >> x;
+    if (sin.fail() || sin.peek() == '.'){
         cout << "Error: invalid argument" << endl;
-        return true;
+        return false;
     }
-    else if (line.peek() == '.' || x < 0){
+    else if (x < 0 ){
         cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else {
+        xlocTop = x;
         return true;
     }
 
-GxLoc = x;
-        return false;
 }
-bool CheckYLoc(stringstream& line){
-        if (line.eof()) {
+
+bool xszCheck(stringstream  &sin){
+    if (sin.eof()) {
         cout << "Error: too few arguments" << endl;
+        return false;
+    }
+    int x;
+    sin >> x;
+    if (sin.fail() || sin.peek() == '.'){
+        cout << "Error: invalid argument" << endl;
+        return false;
+    }
+    else if (x < 0 ){
+        cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else {
+        xszTop = x;
         return true;
+    }
+}
+bool ylocCheck(stringstream  &sin){
+    if (sin.eof()) {
+        cout << "Error: too few arguments" << endl;
+        return false;
     }
     int y;
-    line >> y;
-    counter++;
-    if (line.fail()||(line.peek() != EOF && line.peek() != 32)){
+    sin >> y;
+    if (sin.fail() || sin.peek() == '.'){
         cout << "Error: invalid argument" << endl;
-        return true;
-    }
-    else if (line.peek() == '.' || y < 0){
-        cout << "Error: invalid value" << endl;
-        return true;
-    }
-
-        if(!line.eof() && currentCommand == "move"){
-        cout << "Error: too many arguments" <<endl;
-        return true;
-    }
-    GyLoc = y;
-
-
         return false;
+    }
+    else if (y < 0 ){
+        cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else {
+        ylocTop = y;
+        return true;
+    }
+
 }
-bool CheckXSize(stringstream& line){
-    if (line.eof()) {
+
+bool yszCheck(stringstream  &sin){
+    if (sin.eof()) {
         cout << "Error: too few arguments" << endl;
-        return true;
-    }
-    int x;
-    line  >> x;
-    counter++;
-    if (line.fail()|| (line.peek() != EOF && line.peek() != 32)){
-        cout << "Error: invalid argument" << endl;
-        return true;
-    }
-    else if (x < 0 || line.peek() == '.'){
-        cout << "Error: invalid value" << endl;
-        return true;
-    }
-     GxSize = x;
         return false;
-
+    }
+    int y;
+    sin >> y;
+    if (sin.fail() || sin.peek() == '.'){
+        cout << "Error: invalid argument" << endl;
+        return false;
+    }
+    else if (y < 0 ){ 
+        cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else if (typeTop == "circle" && xszTop != y){
+        cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else {
+        yszTop = y;
+        return true;
+    }
 }
 
-bool CheckYSize(stringstream& line){
-        if (line.eof()) {
+bool angleCheck (stringstream  &sin){
+    if (sin.eof()) {
         cout << "Error: too few arguments" << endl;
-        return true;
-    }
-    int x;
-    line >> x;
-    counter++;
-    if (line.fail()|| (line.peek() != EOF && line.peek() != 32)){
-        cout << "Error: invalid argument" << endl;
-        return true;
-    }
-    else if (x < 0 || line.peek() == '.'){
-        cout << "Error: invalid value" << endl;
-        return true;
-    }
-    GySize = x;
-    if((GySize != GxSize)&& Gtype == "circle"){
-        cout << "Error: invalid value" << endl;
-        return true; 
-    } 
-
-    if(!line.eof() && currentCommand == "create"){
-        cout << "Error: too many arguments" <<endl;
-        return true;
-    }
-
         return false;
-}
-bool CheckArray(){
-    if (max_shapes < shapeCount){
-        cout << "Error: shape array is full" << endl;
+    }
+    int angle;
+    sin >> angle;
+    if (sin.fail() || sin.peek() == '.'){
+        cout << "Error: invalid argument" << endl;
+        return false;
+    }
+    else if (angle < 0 || angle > 360 ){
+        cout << "Error: invalid value" << endl;
+        return false;
+    }
+    else {
+        angleTop = angle;
         return true;
     }
-    return false;
-}
-
-bool checkInputs(stringstream& line){
-if (CheckName(line) || CheckType(line) ||CheckXLoc(line) || CheckYLoc(line) ||CheckXSize(line)|| CheckYSize(line) ||CheckArray()){
-    return false;
-}
-return true;
 }
 
 int main() {
 
     string line;
-    string command, type,name;
-    int val;
+    
+    string name, type;
+    int xloc, yloc, xsz, ysz, angle, value;
     
     cout << "> ";         // Prompt for input
     getline(cin, line);    // Get a line from standard input
+    
 
     while ( !cin.eof () ) {
-        counter = 0;
-        int errorSent=0;
-        command = "";
         // Put the line in a linestream for parsing
         // Making a new sstream for each line so flags etc. are cleared
         stringstream lineStream (line);
-        
+
+        string command;
         // Read from string stream into the command
         // The only way this can fail is if the eof is encountered
-        lineStream >> command;
-        currentCommand = command;
-        // Check for the command and act accordingly
-        // ECE244 Student: Insert your code here
-        if(command != "maxShapes" && command != "create" && command != "move" && command != "rotate" && command != "draw" && command != "delete"){
-            cout << "Error: invalid command" << endl ;
-            errorSent = 1;
+        lineStream >> command ;
+        if (command != "maxShapes" && command != "create" && 
+        command != "move" && command != "rotate" && command != "draw" && command != "delete"  ){
+                cout << "Error: invalid command" << endl;
         }
-        else if(lineStream.peek()== -1 && errorSent == 0){
-             cout << "Error: too few arguments" << endl ;
-             errorSent = 1;
-        }
-        else {
-            if(command == "maxShapes"){
-                lineStream >> val;
-                currentCommand = "maxShapes";
-                if(lineStream.fail()||((lineStream.peek() != EOF && lineStream.peek() != 32) && errorSent == 0)){
-                    cout << "Error: invalid argument" << endl ;
-                    errorSent=1;
-                }
-                else if((val < 0) && errorSent == 0){
-                    cout << "Error: invalid value" << endl ;
-                    errorSent=1;
-                }
-                else if (!lineStream.eof() && errorSent == 0){
-                    cout << "Error: too many arguments" << endl;
-                    errorSent=1;
-                }
-
-                 else {
-                    max_shapes = val;
-                    max_shapes = max_shapes - 1;
-                    if(shapesArray == NULL){
-                        shapesArray = new Shape* [max_shapes];
-                        for (int i; i < max_shapes; i++){
-                            shapesArray[i] = NULL;
-                        }
-                    }
-                    else {
-                        for (int i; i < max_shapes; i++){
-                            if(shapesArray[i]!=NULL){
-                                delete shapesArray[i];
-                                shapesArray[i] = NULL;
-                            }
-                        }
-                        shapesArray = new Shape* [max_shapes];
-                        for (int i; i < max_shapes; i++){
-                            shapesArray[i] = NULL;
-                        }
-                    }
-                    cout << "New database: max shapes is " << max_shapes + 1 << endl;
-                 }
-            }
-            if (command == "create"){
-                currentCommand = "create";
-                if(errorSent == 0 && checkInputs(lineStream) && counter == 6){
-                    shapesArray[shapeCount++] = new Shape(Gname,Gtype,GxLoc,GxSize,GyLoc,GySize);
-                    cout << "Created " << Gname << ": " << Gtype << " " <<  GxLoc << " "  << GyLoc << " " << GxSize << " " << GySize <<endl;
-               }
-                else {
-                    errorSent = 1;
-                }
-            }
-
-                if (command == "draw"){
-                  currentCommand = "draw";
-                if((errorSent == 0 && !CheckName(lineStream))){
-                   if (Gname == "all"){
-                    cout << "Drew all shapes" << endl;
-                    for (int i; i < max_shapes; i++){
-                    if(shapesArray[i] != NULL){
-                    shapesArray[i] -> draw();
-                    }
-                    }
-                  }
-                  else if(NameTaken(Gname)) {
-                    if (getShapeIndex(Gname) != -1){
-                    cout << "Drew ";
-                    shapesArray[getShapeIndex(Gname)] -> draw();
-                    }
-                    else if(errorSent == 0) {
-                        cout << "Error: shape " << Gname << " not found" << endl;
-                        errorSent = 1;
-                    }
-                  }
-                  else {
-                      cout << "Error: shape " << Gname << " not found" << endl;
-                      errorSent = 1;
-                  }
-                }
-                else {
-                    errorSent = 1;
-                }
-                }
-
-
-            if (command == "move"){
-                currentCommand = "move";
-                if(errorSent == 0 && !CheckName(lineStream) && !CheckXLoc(lineStream) && !CheckYLoc(lineStream) && counter == 3){
-                if (!NameTaken(Gname)){
-                      cout << "Error: shape " << Gname << " not found" << endl;
-                      errorSent = 1;
-                  }
-                  else {
-                    cout << "Moved " << Gname << " to " << GxLoc << " "  << GyLoc << endl; 
-                    shapesArray[getShapeIndex(Gname)] -> setXlocation(GxLoc);   
-                    shapesArray[getShapeIndex(Gname)] -> setYlocation(GyLoc);                 
-                    }
-                }
-                else {
-                    errorSent = 1;
-                }
-            }
-
-
-            if (command == "rotate"){
-                currentCommand = "rotate";
-                if(errorSent == 0 &&  !CheckName(lineStream) && !rotate(lineStream) && counter == 1){
-                   if (!NameTaken(Gname)){
-                      cout << "Error: shape " << Gname << " not found" << endl;
-                      errorSent = 1;
-                  }
-                  else {
-                    cout << "Rotated " << Gname << " by " << Grotate << " degrees"<< endl;
-                    shapesArray[getShapeIndex(Gname)] -> setRotate(GxLoc);   
-                  }
-                }
-                else {
-                    errorSent = 1;
-                }
-            }
-
-    if(command == "delete"){
-    string input;
-    int nametook=0;
-    lineStream >> input;
-
-    if(lineStream.fail()){
-        if(lineStream.eof()){
-            cout << "Error: too few arguments" << endl;
-            goto come;
+        else if (lineStream.peek() == -1){
+                    cout << "Error: too few arguments" << endl;
         }
         else{
-            cout << "Error: invalid argument" << endl;
-            goto come;
-        }
-    }
-    if  (  NameTaken(input) == true) {
-        nametook = 1;
-    }
-
-    if(input != "all" && !nametook){
-        cout << "Error: shape "<< input << " not found" << endl;
-       goto come;
-    }
-    while(lineStream.peek() == 32){
-        lineStream.ignore(1);
-    }
-    if(!lineStream.eof()){
-        cout << "Error: too many arguments" <<endl;
-     goto come;
-    }
-    if(input == "all"){
-         for(int x = 0; x < max_shapes; x++){
-            if(shapesArray[x]!=NULL){
-                delete shapesArray[x];
-                shapesArray[x] = NULL;
-            }
-        }
-        shapeCount=0;
-        cout << "Deleted: all shapes" << endl;
-        goto come;
-    }
-    else{
-        if(shapesArray[getShapeIndex(input)]!= NULL){
-           int i =  getShapeIndex(input);
-            delete shapesArray[getShapeIndex(input)];
-            shapesArray[i] = NULL;
-            cout << "Deleted shape "<< input << endl;
-            goto come;
-        }
-    }
+             if (command == "maxShapes"){
+                lineStream >> value;
+                if (lineStream.fail() || lineStream.peek() == '.' ){
+                    cout << "Error: invalid argument" << endl;
                 }
-        }
-        come: 
-        // Once the command has been processed, prompt for the
-        // next command
-        cout << "> ";        // Prompt for input
-        getline(cin, line);
+                else if (value < 0){
+                    cout<< "Error: invalid value" << endl;
+                }
+                else if (!lineStream.eof()){
+                    cout << "Error: too many arguments" << endl;
+                }
+                else {maxShapes (value);} 
+            }
+
+             else if (command == "create") {
+                commandTop = command;
+                if (nameCheck (lineStream) && typeCheck (lineStream) && xlocCheck (lineStream) && ylocCheck (lineStream) &&
+                xszCheck (lineStream) && yszCheck (lineStream)){
+                    create (nameTop, typeTop, xlocTop, xszTop, ylocTop, yszTop, lineStream);
+                } 
+            }
+
+            else if (command == "move") {
+                commandTop = command;
+                if (nameCheck (lineStream) && xlocCheck (lineStream) && ylocCheck (lineStream) ){
+                    move (nameTop, xlocTop, ylocTop, lineStream);
+                }
+            }
+            else if (command == "rotate"){
+                commandTop = command;
+                if (nameCheck (lineStream) && angleCheck (lineStream)){
+                    rotate (nameTop, angleTop, lineStream);
+                }
+            }
+            else if (command == "draw"){
+                commandTop = command;
+                if (nameCheck (lineStream) /* && lineStream.eof() */) 
+                    { draw (nameTop, lineStream);}
+ 
+            }
+            else if (command == "delete"){
+                commandTop = command;
+                if (nameCheck (lineStream) /* && lineStream.eof() */)
+                    { Delete (nameTop, lineStream);}
+            }
+        } 
+            cout << "> ";          // Prompt for input
+            getline(cin, line);
         
-    }  // End input loop until EOF.
+      // End input loop until EOF.
     
-    return 0;
 }
+    return 0;
+
+}
+
